@@ -1,3 +1,7 @@
+'''
+An Simple Card Game. (not updated)
+'''
+
 import random
 import farkle_utils
 single_one=100
