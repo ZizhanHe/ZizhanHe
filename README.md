@@ -6,9 +6,12 @@
 
 
 ⚽️On this page, you can find (continuously updated):
-  "\n"Python Projects
+  -Python Projects
+  
   -Bash/C Projects
+  
   -Java Projects
+  
   -And other fun stuff!
 
  Vlogs
