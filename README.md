@@ -6,7 +6,7 @@
 
 
 ⚽️On this page, you can find (continuously updated):
-  -Python Projects
+  "\n"Python Projects
   -Bash/C Projects
   -Java Projects
   -And other fun stuff!
