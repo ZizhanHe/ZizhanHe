@@ -1,5 +1,5 @@
 #assiignment question2
-base8_chars='0,1,2,3,4,5,6,7'
+base8_chars='01234567'
 base202_chars='0C2OMPIN'
 
 def base10_to_202(amt_in_base10):
@@ -8,9 +8,9 @@ def base10_to_202(amt_in_base10):
     This function takes in intergers in base 10, convert it to base 202, and
     output the result as a string. Base 202 is base 8 with some digits replaced.
     >>>base10_to_202(202)
-    '0c00000CC2'
+    '0c00000OC2'
     >>>base10_to_202(1234)
-    '0c00002C22'
+    '0c00002O22'
     >>>base10_to_202(0)
     '0c00000000'
     '''
@@ -28,7 +28,7 @@ def base10_to_202(amt_in_base10):
     base202_result='0c'+(8-len(base202_1))*'0'+base202_1
     return base202_result
 
-#print(base10_to_202(202))
+#print(base10_to_202(1234))
 
 def base202_to_10(amt_in_base202):
     '''
@@ -47,25 +47,14 @@ def base202_to_10(amt_in_base202):
     base202_list[:]=base202
     #replace comp202 characters into base8's
     for i in range(len(base202_list)):
-        if base202_list[i].upper() =='C':
-            base202_list[i] ='1'
-        if base202_list[i].upper() =='O':
-            base202_list[i] ='3'
-        if base202_list[i].upper() =='M':
-            base202_list[i] ='4'
-        if base202_list[i].upper() =='P':
-            base202_list[i] ='5'
-        if base202_list[i].upper() =='I':
-            base202_list[i] ='6'
-        if base202_list[i].upper() =='N':
-            base202_list[i] ='7'
+        base202_list[i]=base202_chars.index(base202_list[i].upper())
     base8=''
     #convert base8 into base10
     for num in base202_list:
         base8 += str(num)
     base10=int(base8,8)
     return base10
-#print(base202_to_10('0c00000oc2')) testing
+#print(base202_to_10('0c0020C0MP'))
 
 def is_base202(text):
     '''
@@ -109,21 +98,18 @@ def get_nth_base202_amount(text,n):
     #obtain comp202 strings in a text and put them into a list
     for i in range(len(text)):
         #obtain the 10 character string that starts with 0c
-        if text[i] == '0':
-            if text[i+1] =='c':
-                if (i+10)<=len(text):
-                    base202=text[i:i+2].lower()+text[i+2:i+10].upper()
-                    #check is the 10 characer string is a comp202 string
-                    if is_base202(base202):
-                        if base202 not in list_of_base202:
-                            list_of_base202[i:i+1]=([base202])
+        if (text[i] == '0' )and (text[i+1] =='c') and ((i+10)<=len(text)):
+            base202=text[i:i+2].lower()+text[i+2:i+10].upper()
+            #check is the 10 characer string a comp202 string
+            if (is_base202(base202)) and (base202 not in list_of_base202):
+                list_of_base202[i:i+1]=([base202])
     if n > len(list_of_base202)-1:
         return ''
     else:
         return list_of_base202[n]
 
 #text=".0cCCMMPP22. sss ,,,, .... abcwed   0cOCOCOCOC  0coooocccc."
-#print(get_nth_base202_amount(text,1)) testing
+#print(get_nth_base202_amount(text,1))
 
 def nums_of_comp202(text):
     '''
@@ -203,6 +189,4 @@ def reduce_amounts(text,limit):
         return text
 
         
-#print(reduce_amounts('0cCCMmpp22 0cOCOCoCoC',9000000))
-    
-    
+#print(reduce_amounts("0cCCMMPP22 0cOCOCOCOC",9000000))
