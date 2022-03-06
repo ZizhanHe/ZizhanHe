@@ -1,5 +1,5 @@
-#Name: Herbie He
-#ID: 260943211
+#this is main
+#Call menu() to execute
 
 import datetime
 import random
