@@ -1,5 +1,4 @@
-#name: Herbie He
-#ID: 260943211
+
 import datetime
 import random
 from room import *
