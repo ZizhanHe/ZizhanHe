@@ -1,5 +1,4 @@
-#Name: Herbie He
-#ID:260943211
+
 import datetime
 import random
 import copy
