@@ -136,17 +136,15 @@ class Booking:
             for hotel in self.hotels:
                 if hotel.name.lower().strip('\n') == hotel1.lower():
                     for booking_number in hotel.reservations:
-                        if hotel.reservations[booking_number].name.lower() == name1.lower():
-                            if hotel.reservations[booking_number].room_reserved.room_num == room_num1:
-                                if hotel.reservations[booking_number].check_in == checkin:
-                                    if hotel.reservations[booking_number].check_out==checkout:
-                                        booking_num1=booking_number
-                                        found=True
-                                        print('Reservation found under booking number: '+ str(booking_num1))
-                                        print('Here are the details:')
-                                        print(hotel.reservations[booking_num1])
-                                        print('Total amount due: $'+ str(round(hotel.get_receipt([booking_num1]),2)))
-                                        break
+                        if hotel.reservations[booking_number].name.lower() == name1.lower() and hotel.reservations[booking_number].room_reserved.room_num == room_num:             
+                            if hotel.reservations[booking_number].check_in == checkin and hotel.reservations[booking_number].check_out==checkout :                       
+                                booking_num1=booking_number
+                                found=True
+                                print('Reservation found under booking number: '+ str(booking_num1))
+                                print('Here are the details:')
+                                print(hotel.reservations[booking_num1])
+                                print('Total amount due: $'+ str(round(hotel.get_receipt([booking_num1]),2)))
+                                break
             if found==False:
                 print('Sorry, the reservation cannot be found')
     def delete_reservations_at_random(self):
