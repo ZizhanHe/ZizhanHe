@@ -1,9 +1,9 @@
 # Student ID = 1234567
 ####################################write Image#####################
 .data
-str: .asciiz "Error occured opeing the file to write
-struct: .word 6,5,15,0,0,0,0,0,0,0,0,10,10,15,0,0,14,14,14,14,8,12,3,0,0,0,0,3,6,7,8,9,10
-file: .asciiz "/Users/herbyhe/Desktop/McGill/2022 Winter/Comp 273/asgn3/assign3/codes/img1.pgm"
+str: .asciiz "Error occured opeing the file to write"
+#testing: struct: .word 6,5,15,0,0,0,0,0,0,0,0,10,10,15,0,0,14,14,14,14,8,12,3,0,0,0,0,3,6,7,8,9,10
+#testing: file: .asciiz "img5.pgm"
 .align 2
 memoryErrMessage:	.asciiz "Out Of Memory\n"
 int2strBuffer:	.word 36
@@ -16,9 +16,9 @@ write_image:
 	# $a2 -> type (0 -> P5, 1->P2)
 	################# returns #################
 	# void
-	la $a0,struct
-	la $a1,file
-	addi $a2,$0,1
+	#test: la $a0,struct
+	#test: la $a1,file
+	#test: addi $a2,$0,0
 	
 	move $s0,$a0 #s0 contains the address of img struct
 	#open the file
@@ -306,12 +306,12 @@ innerloop5:	ble $s5,$t5,innerExit5	#exit inner loop if counter>=width
 	sb $a0,($t9)	#save to output
 	addi $t9,$t9,1	#increment pointer to output by ONE byte! 
 	addi $t5,$t5,1 	#increment counter
-	j innerloop5	
+	j innerloop5
 
 innerExit5:#now a row has been written
 	addi $t6,$t6,1	#increment height pointer
 	addi $t5,$0,0 #reset counter width, inner loop
-	j outerloop
+	j outerloop5
 	
 outerExit5:	#all content are written
 	j endprog
@@ -336,72 +336,7 @@ readHeader:
 	move $v0,$t3
 	jr $ra
 
-malloc:
-	# $a0 -> number of bytes to allocate
-	################## return ##################
-	# $v0 -> allocated address.
-  	li    	$v0, 9                 # system call code for sbrk
-  	syscall                        # allocate memory
-  	bnez  	$v0, malloc.return     # Did malloc fail?                   
-	la 	$a0, memoryErrMessage
-	li 	$v0,4
-	syscall
-	li	$v0,-1
-malloc.return:
-	jr 	$ra	
 
-int2str:
-	# $a0 <- integer to convert, only accepts numbers upto 3 digits
-	##############return#########
-	# $v0 <- space terminated string 
-	# $v1 <- length or number string + 1(for space)
-	###############################
-	
-	#addi $a0,$0,999 test
-	
-	#determine whether the input is 3digit, 2digit, or 1digit
-	addi $t0,$0,99
-	blt $t0,$a0,threeDigit
-	addi $t0,$0,9
-	blt $t0,$a0,twoDigit
-	addi $t1,$0,1	#$t1 will be used to extract digits
-	addi $v1,$0,2	#$ao is 1digit, so length is 2
-	j next
-threeDigit: addi $t1,$0,100	
-	addi $v1,$0,4	#$ao is 3digit, so length is 4
-	j next
-twoDigit: addi $t1,$0,10
-	addi $v1,$0,3	#$ao is 2digit, so length is 3
-next:	la $t9,int2strBuffer	#$t9 points to the address where digits are saved
-
-loop:	slt $t8,$0,$t1	#$t1>0?
-	beq $0,$t8,end	#exit if $t1<=0
-	
-	#extract digit
-	divu $a0,$t1	#eg. for 3digit,$a0=123, $t1=100, $t2=123/100=1,  $t2 will have the first digit
-	mflo $t2 #$t2 will have the digit
-	mfhi $a0	#eg. $a0=123, then $t1=100, $t2=first digit=$a0/$t1=1.
-			#$a0=123%100=23 will be used for next loop.
-	addi $t0,$0,10
-	divu $t1,$t1,$t0 #decrement $t1=$t1/10
-		
-	addi $t3,$t2,48	#$t3 will have the ascii of $t2
-	sb $t3,($t9)
-	addi $t9,$t9,1	#increment pointer
-	j loop
-
-end:	addi $t3,$0,32 #$t3 will hold a space
-	sb $t3,($t9)	#adds a space at the end
-	#stores the address of int2strBuffer into $v0
-	la $v0,int2strBuffer
-	j int2str.return
-	
-
-int2str.return:
-	#add $a0,$0,$v0 test
-	#li $v0,4 test
-	#syscall test
-	jr $ra
 
 	
 error: li $v0,4
@@ -419,5 +354,6 @@ endprog:#all contents are written
 	j exitProg
 	
 exitProg: 
-#write_image.return:
-	#jr $ra
+write_image.return:
+	jr $ra
+
