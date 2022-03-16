@@ -1,13 +1,11 @@
-# Student ID = 1234567
+# Student ID = 
 #########################Read Image#########################
 .data
-file: 	.asciiz	"/Users/herbyhe/Desktop/McGill/2022 Winter/Comp 273/asgn3/assign3/codes/img3.pgm"
+#for testing: file: 	.asciiz	"feepP2.pgm"
 errormsg:	.asciiz "error occured opening the file"
-headerBuffer:	.space 4096	#reserve 16 char for header
 tmpbuffer:	.space 4		#used to store 3digit ascii eg. '125'
 readbuffer: .space 1
 intbuffer:	.word 4		#used to store (int) Width,Height,Maxval
-memoryErrMessage:	.asciiz "Out Of Memory\n"
 space: .asciiz " "
 .text
 .globl read_image
@@ -27,7 +25,7 @@ read_image:
 	# Add code here
 	
 	#For P2 you need to use str2int 
-	la $a0,file
+	#for testing :la $a0,file
 	
 	#open file
 	li $v0,13
@@ -47,7 +45,7 @@ read_image:
 	
 	la $t0,tmpbuffer
 	lb $t2,1($t0)	#t2 should be '2' or '5'
-	
+	move $s7,$t2
 
 	#loop through header, and read Width,Height,Maxval
 	# stop when reaches 3rd \n
@@ -144,7 +142,7 @@ outerexit:#now intbuffer has width,height,maxvalue
 	#output has 30,14,15
 
 	addi $t3,$0,53	#ascii for 5
-	beq $t2,$t3,P5
+	beq $s7,$t3,P5
 	
 	#The next read file syscall will read the content.
 
@@ -157,6 +155,9 @@ P2:
 	add $t0,$0,0	#t0 is num of pixel that has been read
 	la $a3,tmpbuffer #a3 has the address to tmpbuffer used to store ascii num '123 ' 
 	la $t8,readbuffer #t8 has the address to readbuffer used to store 1 byte
+	addi $t7,$0,0	# t7 is \n counter, if t7>height, then we've read all conten
+	#use $s7 to store previous value
+	#addi $s7,$0,32	#ascii for space
 
 outerloopct: ble $t1,$t0,outerexitct #exit if $t0 >= $t1
 	move $t6,$a3	##t6 has the address of tmpbuffer
@@ -170,25 +171,41 @@ innerloopct:
 	lb $t3,($t8)	#load ascii from img into t3
 	addi $t5,$0,32 	#ascii for space
 	beq $t3,$t5,innerexitct	#exit if ascii is blank space, this means we've store the entire num into tmpbuffer, and we can add ' ' and conevrt to int.
+	#move $s7,$t3
 	addi $t5,$0,10
-	beq $t3,$t5,outerloopct #if its \n, then it means we've finished one row, move to next one.
+	beq $t3,$t5,newrowPending #if its \n, then it means we've finished one row, move to next one.
 	beq $t3,$0,outerexitct	#also exit if reaches the end EOF.
 	
 	sb $t3,($t6)	#if not a space, store ascii into tmpbuffer
 	addi $t6,$t6,1	#increment pointer to tmpbuffer
 	j innerloopct
+
+#pending:addi $t5,$0,32
+	#beq $s7,$t5,outerloopct #if last char is also space, move on to next loop
+	#move $s7,$t3
+	#j innerexitct
+newrowPending:addi $t7,$t7,1
+	blt $s5,$t7,outerexitct
+	j outerloopct
+
+
 innerexitct:
 	#saves a space at the end
 	addi $t5,$0,32 #ascii for space
 	sb $t5,($t6)	#save space into tmpbuffer
 	
+	lb $t5,($a3)	#loads ascii from the first byte in tmpbuffer. if $t5==space, then jump to next loop
+	addi $t6,$0,32	#ascii for space
+	beq $t5,$t6,outerloopct
+	
 	#now convert ascii to str
-	addi $sp,$sp,-16
+	addi $sp,$sp,-20
 	sw $t0,0($sp)
 	sw $t1,4($sp)
 	sw $a3,8($sp)
 	sw $t8,12($sp)
 	sw $t9,16($sp)
+	sw $s7,20($sp)
 	move $a0,$a3
 	jal str2int
 	lw $t0,0($sp)
@@ -196,6 +213,7 @@ innerexitct:
 	lw $a3,8($sp)
 	lw $t8,12($sp)
 	lw $t9,16($sp)
+	lw $s7,20($sp)
 	#$v0 has int value, store v0 into output
 	sw $v0,($t9)	#save int to output
 	addi $t9,$t9,4	#increment pointer by 4 bytes
@@ -230,101 +248,30 @@ exitctp5: #now all content has been written into img struct pointed by $s2.
 	j endprog
 
 
-		
-
-	
-	
-
-
-str2int:
-	# $a0 -> address of string, i.e "32", terminated with 0, EOS
-	###### returns ########
-	# $v0 -> return converted integer value
-	# $v1 -> length of integer
-	###########################################################
-	
-	#loop through the string, find its length
-	addi $v1,$zero,0 #$vo will contain the length
-	add $t9,$0,$a0	#$t9 has the address of str, whill change
-	addi $t0,$0,32
-
-looplength:lb $t1,($t9)
-	bne $t1,$t0,next
-	j end
-
-next:	addi $t9,$t9,1	#increment $t9 by 1 byte
-	addi $v1,$v1,1	#increment length
-	j looplength
-
-#$v1 now contiains the length of str
-end:	addi $t2,$v1,-1	#$t2 is the offset/counter
-	addi $t3,$0,1	#$t3 is the multiple of 10 starting from 10^0
-	addi $v0,$0,0	#v0 will have the int result of str
-	addi $t4,$0,0	#will hold the str val of a byte
-	addi $t5,$0,0	#$t5 will hold tmp address
-	
-#loop from end to start of str, and add each byte multiplied by pow of 10 to result.
-#eg. '123'=3*10^0 + 2*10^1 + 3*10^2
-loopint: blt $t2,$0,exit	#exit if offset <0
-	add $t5,$a0,$t2		#address to load=initial address+offset
-	lb $t4,($t5)		#$t4 will have char at initial address+offset
-	addi $t7,$t4,-48	#convert char to decimal, put into $t7
-	mult $t3,$t7		#mult $t7 digit by pow of 10
-	mflo $t6	#$t6 will contain the resrult of pow of 10 * digit. Since we only consider 3 digit int, won't exceed lo.
-	add $v0,$v0,$t6
-	#Increment
-	addi $t2,$t2,-1
-	addi $t6,$0,10
-	mult $t3,$t6
-	mflo $t3
-	j loopint
-
-exit: j str2int.return
-	
-str2int.return:
-	jr $ra
-
-malloc:
-	# $a0 -> number of bytes to allocate
-	################## return ##################
-	# $v0 -> allocated address.
-  	li    	$v0, 9                 # system call code for sbrk
-  	syscall                        # allocate memory
-  	bnez  	$v0, malloc.return     # Did malloc fail?                   
-	la 	$a0, memoryErrMessage
-	li 	$v0,4
-	syscall
-	li	$v0,-1
-malloc.return:
-	jr 	$ra
-
-
-
-
 error:
 	li $v0,4
 	la $a0,errormsg
 	syscall
-	j printend
+	j read_image.return
 
 endprog:move $v0,$s2
 	#print img struct
-	addi $t1,$0,0
-printloop:	ble $s1,$t1,printend
-	li $v0,1
-	lw $a0,($s2)
-	syscall
-	addi $s2,$s2,4
-	addi $t1,$t1,1
+	#addi $t1,$0,0
+#printloop:	ble $s1,$t1,printend
+	#li $v0,1
+	#lw $a0,($s2)
+	#syscall
+	#addi $s2,$s2,4
+	#addi $t1,$t1,1
 	
-	li $v0,4
-	la $a0,space
-	syscall
+	#li $v0,4
+	#la $a0,space
+	#syscall
 	
-	j printloop
-printend:
+	#j printloop
+#printend:
 
 	#return
 
-#read_image.return:
-	#jr $ra
+read_image.return:
+	jr $ra
