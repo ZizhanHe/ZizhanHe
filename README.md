@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @ZizhanHe
-- 👀 I’m interested in algorithms, data structures, AIs, Software development.
-- 🌱 I’m currently learning Software design, Reverse enginnering, Discrete structres.
+- 👀 I’m interested in algorithms, Functional Programming, OS, Software development.
+- 🌱 I’m currently learning OS Architecture, Higehr-Order functions, Algorithm Optimization.
 - 👾 Currently looking for internships
 - 📫 How to reach me: zizhanhe@foxmail.com
 
