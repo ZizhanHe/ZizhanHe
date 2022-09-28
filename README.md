@@ -14,9 +14,7 @@
   
   -And other fun stuff!
 
- Vlogs
-    -Fist vlog!(https://www.bilibili.com/video/BV1ga41127MW?spm_id_from=333.999.0.0)
-    -more to come!
+ Website maintained by me: https://ehhome.eu/
     
     
 <!---
